@@ -6,8 +6,10 @@ import gym
 from torch.distributions import Categorical
 from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 
+from MMC_env import MMCTuningEnv
+
 # visualization On / Off
-viz = True
+viz = False
 
 # Set the hyperparameters
 GAMMA = 0.99
@@ -68,6 +70,8 @@ class PPOAgent:
         old_log_probs = torch.FloatTensor(memory['log_probs']).view(-1,1)
         returns = torch.FloatTensor(memory['returns']).view(-1,1)
         advantages = returns - self.policy(states)[1].detach()
+        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+
         
         # PPO update
         for _ in range(K_EPOCH):
@@ -104,9 +108,9 @@ class PPOAgent:
 # Main training loop
 def main():
     if viz:
-        env = gym.make('CartPole-v1', render_mode="human")
+        env = MMCTuningEnv(render_mode="human")
     else:
-        env = gym.make('CartPole-v1')
+        env = MMCTuningEnv()
     
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.n
@@ -163,7 +167,7 @@ def main():
             break
 
     # Save the model
-    torch.save(agent.policy.state_dict(), './model/cartpole-ppo.pth')
+    torch.save(agent.policy.state_dict(), './model/mmc-ppo.pth')
     print("A model is saved")
     env.close()
 
