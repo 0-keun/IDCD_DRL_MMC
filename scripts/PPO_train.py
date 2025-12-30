@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import gym
 from torch.distributions import Normal
 from torch.utils.data.sampler import BatchSampler, SubsetRandomSampler
 
@@ -32,7 +31,7 @@ class ActorCritic(nn.Module):
 
         # Policy network: mean of action
         self.mu_head = nn.Linear(hidden_dim, action_dim)
-        # log_std는 파라미터로 두고 학습되게 함 (action_dim 차원)
+        # log_std는 파라미터로 두고 학습되게 함
         self.log_std = nn.Parameter(torch.zeros(action_dim))
 
         # Value function network
@@ -64,7 +63,7 @@ class PPOAgent:
         action = dist.sample()                                    # [1, action_dim]
         log_prob = dist.log_prob(action).sum(dim=-1)              # [1]
 
-        # env의 action_space가 [-1, 1] 박스라고 가정하고 clamp
+        # env action space [-1,1] 가정하고 clamp
         action_clamped = torch.clamp(action, -1.0, 1.0)
 
         return action_clamped.squeeze(0).cpu().numpy(), log_prob.item()
@@ -90,10 +89,9 @@ class PPOAgent:
         with torch.no_grad():
             _, _, values = self.policy(states)   # [N, 1]
         advantages = returns - values
-        # advantage 정규화 (학습 안정성 ↑)
+        # advantage 정규화
         advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
 
-        # PPO update
         dataset_size = states.size(0)
         for _ in range(K_EPOCH):
             for index in BatchSampler(SubsetRandomSampler(range(dataset_size)), BATCH_SIZE, False):
@@ -103,34 +101,27 @@ class PPOAgent:
                 sampled_returns = returns[index]
                 sampled_advantages = advantages[index]
 
-                # Current policy's distributions and value estimates
                 mu, std, state_values = self.policy(sampled_states)
                 dist = Normal(mu, std)
 
-                # log_prob, entropy: 각 차원을 합산해서 scalar로 사용
-                new_log_probs = dist.log_prob(sampled_actions).sum(dim=-1, keepdim=True)  # [B, 1]
+                new_log_probs = dist.log_prob(sampled_actions).sum(dim=-1, keepdim=True)  # [B,1]
                 entropy = dist.entropy().sum(dim=-1).mean()
 
-                # Calculate the ratio
                 ratio = torch.exp(new_log_probs - sampled_old_log_probs)
 
-                # PPO clipping
                 surr1 = ratio * sampled_advantages
                 surr2 = torch.clamp(ratio, 1 - EPS_CLIP, 1 + EPS_CLIP) * sampled_advantages
                 policy_loss = -torch.min(surr1, surr2).mean()
 
-                # Value loss
                 value_loss = self.MseLoss(state_values, sampled_returns)
 
                 loss = policy_loss + 0.5 * value_loss - 0.01 * entropy
                 
-                # Backpropagation and optimization
                 self.optimizer.zero_grad()
                 loss.backward()
                 nn.utils.clip_grad_norm_(self.policy.parameters(), 0.5)
                 self.optimizer.step()
         
-        # Update the old policy
         self.policy_old.load_state_dict(self.policy.state_dict())
 
 # =========================
@@ -143,7 +134,6 @@ def main():
         env = MMCTuningEnv()
     
     state_dim = env.observation_space.shape[0]
-    # 연속 action: Box -> shape[0] 사용
     action_dim = env.action_space.shape[0]
     agent = PPOAgent(state_dim, action_dim)
     
@@ -152,16 +142,27 @@ def main():
     timestep = 0
     
     memory = {'states': [], 'actions': [], 'log_probs': [], 'rewards': [], 'dones': []}
+
+    # 🔹 전체 학습 동안의 전역 최적 설계 기록용
+    global_best_cost = float("inf")
+    global_best_L = None
+    global_best_C = None
     
     for episode in range(1, max_episodes + 1):
         state, _ = env.reset()
-        ep_reward = 0
+        ep_reward = 0.0
         for t in range(max_timesteps):
             if viz:
                 env.render()
-            action, log_prob = agent.select_action(state)  # action: np.array(action_dim,)
+            action, log_prob = agent.select_action(state)
             next_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
+
+            # env 내부에서 추적한 best가 전체(global)보다 좋으면 갱신
+            if info["best_cost"] < global_best_cost:
+                global_best_cost = info["best_cost"]
+                global_best_L = info["best_L"]
+                global_best_C = info["best_C"]
             
             memory['states'].append(state)
             memory['actions'].append(action)
@@ -173,7 +174,7 @@ def main():
             ep_reward += reward
             timestep += 1
             
-            # Update every certain number of timesteps
+            # 일정 timestep마다 PPO 업데이트
             if timestep % UPDATE_TIMESTEP == 0:
                 with torch.no_grad():
                     state_tensor = torch.FloatTensor(state).unsqueeze(0).to(device)
@@ -192,9 +193,16 @@ def main():
         
         print(f"Episode {episode}\tReward: {ep_reward:.4f}")
     
-    # Save the model
+    # 모델 저장
     torch.save(agent.policy.state_dict(), './model/mmc-ppo-continuous.pth')
     print("A model is saved")
+
+    # 🔹 학습 전체에서 찾은 최적 설계 출력
+    print("\n=== Global Best Design (over all episodes) ===")
+    print(f"Best cost : {global_best_cost:.6f}")
+    print(f"Best L_arm: {global_best_L:.6e} H")
+    print(f"Best C_arm: {global_best_C:.6e} F")
+
     env.close()
 
 if __name__ == '__main__':
