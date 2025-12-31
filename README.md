@@ -37,3 +37,14 @@ if you don't want to visualize the simulation, change the code
 ```python
 viz = True -> viz = False
 ```
+
+## Build
+You can build main.c file in the directory where main.c is.
+```cmd
+gcc -g *.c -I. -I..\include -o main.exe
+```
+
+And run with command below:
+```cmd
+.\main.exe
+```
