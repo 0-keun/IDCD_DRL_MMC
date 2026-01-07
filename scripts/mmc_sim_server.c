@@ -1,42 +1,74 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
-    // 입력 파라미터
+/* -----------------------------
+ * 1) 입력: 한 줄 읽기
+ *    성공 시 1, EOF/형식 불일치 시 0
+ * ----------------------------- */
+static int read_input(
+    double *L_arm, double *C_arm,
+    double *V_in,  double *I_in,
+    double *V_out, double *I_out
+) {
+    int n = scanf("%lf %lf %lf %lf %lf %lf",
+                  L_arm, C_arm, V_in, I_in, V_out, I_out);
+    return (n == 6) ? 1 : 0;
+}
+
+/* -----------------------------
+ * 2) 계산: (현재 더미 계산) -> 나중에 MMC 시뮬레이션으로 교체
+ * ----------------------------- */
+static void compute_metrics(
+    double L_arm, double C_arm,
+    double V_in,  double I_in,
+    double V_out, double I_out,
+    double *I_circ_rms, double *I_ripple, double *eta
+) {
+    (void)V_in;  (void)I_in;  (void)V_out; (void)I_out; // 지금은 미사용(경고 방지)
+
+    const double L_min = 1e-3;
+    const double C_min = 1e-3;
+    const double L_max = 10e-3;
+    const double C_max = 10e-3;
+
+    *I_circ_rms = 1.0 / (L_arm / L_min + 1e-3);
+    *I_ripple   = 1.0 / (C_arm / C_min + 1e-3);
+
+    const double L_mid = (L_min + L_max) / 2.0;
+    const double C_mid = (C_min + C_max) / 2.0;
+
+    double L_norm = (L_arm - L_mid) / (L_max - L_min);
+    double C_norm = (C_arm - C_mid) / (C_max - C_min);
+
+    double eta_local = 0.9 - 0.05 * (L_norm * L_norm) - 0.05 * (C_norm * C_norm);
+
+    if (eta_local < 0.0) eta_local = 0.0;
+    if (eta_local > 1.0) eta_local = 1.0;
+
+    *eta = eta_local;
+}
+
+/* -----------------------------
+ * 3) 출력: 한 줄 출력 + flush
+ * ----------------------------- */
+static void write_output(double I_circ_rms, double I_ripple, double eta) {
+    printf("%.10f %.10f %.10f\n", I_circ_rms, I_ripple, eta);
+    fflush(stdout);
+}
+
+/* -----------------------------
+ * main loop: read -> compute -> write
+ * ----------------------------- */
+int main(void) {
     double L_arm, C_arm, V_in, I_in, V_out, I_out;
 
-    // 한 줄 단위로 계속 처리 (EOF 오면 종료)
-    while (1) {
-        int n = scanf("%lf %lf %lf %lf %lf %lf", &L_arm, &C_arm, &V_in, &I_in, &V_out, &I_out);
-        if (n != 6) break;
+    while (read_input(&L_arm, &C_arm, &V_in, &I_in, &V_out, &I_out)) {
+        double I_circ_rms, I_ripple, eta;
 
-        // -----------------------------
-        // TODO: 여기서 "실제 MMC 시뮬레이션" 수행
-        // 현재는 Python 더미 모델과 비슷한 형태의 더미 계산만 넣어둠
-        // -----------------------------
-        // (주의) Python 쪽 범위를 그대로 쓰려면 L_min/C_min을 C에도 맞춰야 함
-        // 여기서는 예시로 임의 상수 사용
-        const double L_min = 1e-3;
-        const double C_min = 1e-3;
-        const double L_max = 10e-3;
-        const double C_max = 10e-3;
+        compute_metrics(L_arm, C_arm, V_in, I_in, V_out, I_out,
+                        &I_circ_rms, &I_ripple, &eta);
 
-        double I_circ_rms = 1.0 / (L_arm / L_min + 1e-3);
-        double I_ripple   = 1.0 / (C_arm / C_min + 1e-3);
-
-        double L_mid = (L_min + L_max) / 2.0;
-        double C_mid = (C_min + C_max) / 2.0;
-
-        double eta = 0.9
-            - 0.05 * ((L_arm - L_mid) / (L_max - L_min)) * ((L_arm - L_mid) / (L_max - L_min))
-            - 0.05 * ((C_arm - C_mid) / (C_max - C_min)) * ((C_arm - C_mid) / (C_max - C_min));
-
-        if (eta < 0.0) eta = 0.0;
-        if (eta > 1.0) eta = 1.0;
-
-        // 결과를 한 줄로 출력하고 flush
-        printf("%.10f %.10f %.10f\n", I_circ_rms, I_ripple, eta);
-        fflush(stdout);
+        write_output(I_circ_rms, I_ripple, eta);
     }
 
     return 0;

@@ -143,7 +143,7 @@ def main():
     
     memory = {'states': [], 'actions': [], 'log_probs': [], 'rewards': [], 'dones': []}
 
-    # 🔹 전체 학습 동안의 전역 최적 설계 기록용
+    # 전체 학습 동안의 전역 최적 설계 기록용
     global_best_cost = float("inf")
     global_best_L = None
     global_best_C = None
