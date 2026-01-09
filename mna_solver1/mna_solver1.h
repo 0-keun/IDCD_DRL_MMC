@@ -26,7 +26,7 @@ extern "C" {
 extern LU24Ctx g_ctx;
 extern int g_ctx_ready;
 /* Function Declarations */
-extern void mna_solver1(struct0_T *out);
+extern void mna_solver1(double b_A[576], struct0_T *out);
 void mna_solver1_set_H(const double H[576]);
 
 #ifdef __cplusplus

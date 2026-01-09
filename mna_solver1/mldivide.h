@@ -1,6 +1,10 @@
 #ifndef MLDIVIDE_H
 #define MLDIVIDE_H
 
+#include "rtwtypes.h"
+#include <stddef.h>
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -10,6 +14,9 @@ typedef struct {
     signed char ipiv[24];
     int ready;           // 0:not factored, 1:factored
 } LU24Ctx;
+
+/* Function Declarations */
+void mldivide(double b_A[576], double B[24]);
 
 // H를 LU로 한 번만 분해
 void lu24_factor(const double H[576], LU24Ctx *ctx);
