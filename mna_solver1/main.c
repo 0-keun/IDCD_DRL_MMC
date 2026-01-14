@@ -93,17 +93,19 @@ int main(int argc, char **argv)
     (void)argc;
     (void)argv;
 
-    const int N = 35000001;
+    // const int N = 35000001;
+    const int N = 5000001;
     double H[576];
 
     while (1) {
 
         /* ---- 1. Read H from stdin ---- */
-        if (!read_H(H)) {
-            // EOF or error → Python closed stdin → exit cleanly
-            fprintf(stderr, "Input closed. Exiting MMC simulator.\n");
-            break;
-        }
+        // if (!read_H(H)) {
+        //     // EOF or error → Python closed stdin → exit cleanly
+        //     fprintf(stderr, "Input closed. Exiting MMC simulator.\n");
+        //     break;
+        // }
+        memcpy(H, b_A, 576U * sizeof(double));
 
         /* ---- 2. Allocate output struct ---- */
         struct0_T out = {0};
@@ -115,15 +117,17 @@ int main(int argc, char **argv)
 
         /* ---- 3. Run solver ---- */
         mna_solver1(H, &out);
-
+        
         /* ---- 4. Output last values ---- */
         int last = N - 1;
 
         printf("%.15e %.15e %.15e\n",
                out.icc[last],
                out.deltai[last],
-               out.vout[last]);
+               out.vout_rmse);
         fflush(stdout);
+
+        mna_solver1_free(&out);
 
         /* ---- 5. Free internal memory for next iteration ---- */
         mna_solver1_terminate();

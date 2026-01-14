@@ -1,5 +1,6 @@
 import subprocess
 import numpy as np
+import time
 
 dt = 1e-7
 
@@ -46,6 +47,8 @@ def update_H(L=20e-3, C=10e-3):
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, G_c, -G_c, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, G_s, 0, -G_s, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    
+    # print(H_LIST)
                 
     return H_LIST
 
@@ -69,21 +72,29 @@ def _send_H_once(H):
     # 576개를 한 줄로 전송
     line_out = " ".join(f"{v:.17g}" for v in H_flat.tolist()) 
     line_out = line_out.replace("e","E") + "\n"
-    print(line_out)
+    # print(line_out)
     p.stdin.write(line_out)
     p.stdin.flush()
 
 # 1) 한 줄 보내기
 msg = 123
+start_time = time.perf_counter()
 H_list = update_H()
+end_time = time.perf_counter()
+second_time = time.time()
 _send_H_once(H_list)
+third_time = time.time()
 # p.stdin.write(str(msg) + "\n")
 # p.stdin.flush()
 
 # 2) 받기
-for i in range(2):
-    reply = p.stdout.readline().rstrip("\n")
-    print("got:", reply)
+reply = p.stdout.readline().rstrip("\n")
+fourth_time = time.time()
+print("got:", reply)
+print(f'Update, Send: {(end_time - start_time)*10e6}[us]')
+# print(f'Update, Send: {third_time-first_time}[s]')
+print(f'Simulation, Receive: {fourth_time-third_time}[s]')
+
 
 # 종료(정리)
 p.stdin.close()

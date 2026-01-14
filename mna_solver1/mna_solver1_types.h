@@ -23,6 +23,7 @@ typedef struct {
   double *vout;
   double *icc;
   double *deltai;
+  double vout_rmse;
 } struct0_T;
 #endif /* typedef_struct0_T */
 

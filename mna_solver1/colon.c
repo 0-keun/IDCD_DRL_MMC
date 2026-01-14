@@ -17,18 +17,18 @@
  * Arguments    : double y[35000001]
  * Return Type  : void
  */
-void eml_float_colon(double y[35000001])
+void eml_float_colon(double y[5000001])
 {
   int k;
   y[0] = 0.0;
-  y[35000000] = 3.5;
-  for (k = 0; k < 17499999; k++) {
+  y[5000000] = 0.5;
+  for (k = 0; k < 2499999; k++) {
     double kd;
     kd = ((double)k + 1.0) * 1.0E-7;
     y[k + 1] = kd;
-    y[34999999 - k] = 3.5 - kd;
+    y[4999999 - k] = 0.5 - kd;
   }
-  y[17500000] = 1.75;
+  y[2500000] = 1.75;
 }
 
 /*

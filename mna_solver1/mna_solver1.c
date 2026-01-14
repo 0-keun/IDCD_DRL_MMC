@@ -72,13 +72,17 @@
 
 void mna_solver1(double b_A[576], struct0_T *out)
 {
-  const int N = 35000001;   // 길이 상수 (있으면 편함)
-  
+  const int N = 5000001;   // 길이 상수 (있으면 편함)
+  double rmse_acc = 0.0;
+  const double w_ref = 2.0 * M_PI * 60.0;
   // if (!g_ctx_ready) {
   //     fprintf(stderr, "mna_solver1: H not initialized. Call mna_solver1_set_H() first.\n");
   //     exit(1);
   // }
+  double t;
+  double err;
 
+  double *v_ref;
   double *i1;
   double *i10;
   double *i11;
@@ -110,7 +114,7 @@ void mna_solver1(double b_A[576], struct0_T *out)
   double *v9;
 
   int n;
-
+  v_ref  = (double *)malloc(N * sizeof(double));
   i1  = (double *)malloc(N * sizeof(double));
   i10 = (double *)malloc(N * sizeof(double));
   i11 = (double *)malloc(N * sizeof(double));
@@ -147,41 +151,44 @@ void mna_solver1(double b_A[576], struct0_T *out)
     fprintf(stderr, "mna_solver1: malloc failed (need huge memory)\n");
     exit(1);   // 메모리 없으면 그냥 종료
   }
+
   eml_float_colon(out->t);
   /* L_arm */
   /* C_sM */
-  memset(&v1[0], 0, 35000001U * sizeof(double));
-  memset(&v2[0], 0, 35000001U * sizeof(double));
-  memset(&v3[0], 0, 35000001U * sizeof(double));
-  memset(&v4[0], 0, 35000001U * sizeof(double));
-  memset(&v5[0], 0, 35000001U * sizeof(double));
-  memset(&v6[0], 0, 35000001U * sizeof(double));
-  memset(&out->vout[0], 0, 35000001U * sizeof(double));
-  memset(&v9[0], 0, 35000001U * sizeof(double));
-  memset(&v10[0], 0, 35000001U * sizeof(double));
-  memset(&v11[0], 0, 35000001U * sizeof(double));
-  memset(&v12[0], 0, 35000001U * sizeof(double));
-  memset(&v13[0], 0, 35000001U * sizeof(double));
-  memset(&i1[0], 0, 35000001U * sizeof(double));
-  memset(&i2[0], 0, 35000001U * sizeof(double));
-  memset(&i3[0], 0, 35000001U * sizeof(double));
-  memset(&i4[0], 0, 35000001U * sizeof(double));
-  memset(&i5[0], 0, 35000001U * sizeof(double));
-  memset(&i7[0], 0, 35000001U * sizeof(double));
-  memset(&i8[0], 0, 35000001U * sizeof(double));
-  memset(&i9[0], 0, 35000001U * sizeof(double));
-  memset(&i10[0], 0, 35000001U * sizeof(double));
-  memset(&i11[0], 0, 35000001U * sizeof(double));
-  memset(&js1[0], 0, 35000001U * sizeof(double));
-  memset(&js2[0], 0, 35000001U * sizeof(double));
-  memset(&js3[0], 0, 35000001U * sizeof(double));
-  memset(&js4[0], 0, 35000001U * sizeof(double));
-  memset(&js5[0], 0, 35000001U * sizeof(double));
-  memset(&js6[0], 0, 35000001U * sizeof(double));
-  memset(&js7[0], 0, 35000001U * sizeof(double));
-  memset(&js8[0], 0, 35000001U * sizeof(double));
+  memset(&v_ref[0], 0, N * sizeof(double));
+  memset(&v1[0], 0, N * sizeof(double));
+  memset(&v2[0], 0, N * sizeof(double));
+  memset(&v3[0], 0, N * sizeof(double));
+  memset(&v4[0], 0, N * sizeof(double));
+  memset(&v5[0], 0, N * sizeof(double));
+  memset(&v6[0], 0, N * sizeof(double));
+  memset(&out->vout[0], 0, N * sizeof(double));
+  memset(&v9[0], 0, N * sizeof(double));
+  memset(&v10[0], 0, N * sizeof(double));
+  memset(&v11[0], 0, N * sizeof(double));
+  memset(&v12[0], 0, N * sizeof(double));
+  memset(&v13[0], 0, N * sizeof(double));
+  memset(&i1[0], 0, N * sizeof(double));
+  memset(&i2[0], 0, N * sizeof(double));
+  memset(&i3[0], 0, N * sizeof(double));
+  memset(&i4[0], 0, N * sizeof(double));
+  memset(&i5[0], 0, N * sizeof(double));
+  memset(&i7[0], 0, N * sizeof(double));
+  memset(&i8[0], 0, N * sizeof(double));
+  memset(&i9[0], 0, N * sizeof(double));
+  memset(&i10[0], 0, N * sizeof(double));
+  memset(&i11[0], 0, N * sizeof(double));
+  memset(&js1[0], 0, N * sizeof(double));
+  memset(&js2[0], 0, N * sizeof(double));
+  memset(&js3[0], 0, N * sizeof(double));
+  memset(&js4[0], 0, N * sizeof(double));
+  memset(&js5[0], 0, N * sizeof(double));
+  memset(&js6[0], 0, N * sizeof(double));
+  memset(&js7[0], 0, N * sizeof(double));
+  memset(&js8[0], 0, N * sizeof(double));
+
   /*  System Matrix (24x24 constant) */
-  for (n = 0; n < 35000000; n++) {
+  for (n = 0; n < N-1; n++) {
     double x[24];
     double saw;
     double saw_s;
@@ -268,7 +275,7 @@ void mna_solver1(double b_A[576], struct0_T *out)
     v2[n + 1] = x[1];
     v3[n + 1] = x[2];
 
-    v4[n + 1] = x[3];
+    v4[n + 1] = x[3]; 
     v5[n + 1] = x[4];
     v6[n + 1] = x[5];
     out->vout[n + 1] = x[6];
@@ -287,8 +294,15 @@ void mna_solver1(double b_A[576], struct0_T *out)
     i9[n + 1] = x[21];
     i10[n + 1] = x[22];
     i11[n + 1] = x[23];
+
+    t = out->t[n];
+    v_ref[n] = 1000.0*sin(w_ref * t);
+    // rmse_acc += err * err;
+    // printf("v_ref    = %.15e\n", v_ref);
+    // printf("vout     = %.15e\n", out->vout[n]);
   }
-  for (n = 0; n <= 34999998; n += 2) {
+  
+  for (n = 0; n <= N-3; n += 2) {
     __m128d r;
     __m128d r1;
     r = _mm_loadu_pd(&i1[n]);
@@ -300,10 +314,17 @@ void mna_solver1(double b_A[576], struct0_T *out)
     _mm_storeu_pd(&out->deltai[n],
                   _mm_div_pd(_mm_sub_pd(r, r1), _mm_set1_pd(0.01)));
   }
-  out->icc[35000000] = (i1[35000000] + i7[35000000]) / 2.0;
-  out->deltai[35000000] = (v5[35000000] - v6[35000000]) / 0.01;
+  for (n = N-3-500000; n <= N-3; n += 1) {
+    err = out->vout[n] - v_ref[n];
+    rmse_acc += err * err;
+    // printf("v_ref    = %.15e\n", v_ref);
+    // printf("vout     = %.15e\n", out->vout[n]);
+  }
+  out->icc[N-1] = (i1[N-1] + i7[N-1]) / 2.0;
+  out->deltai[N-1] = (v5[N-1] - v6[N-1]) / 0.01;
+  out->vout_rmse = sqrt(rmse_acc / N);
 
-  int last = N - 1;  // 35000000
+  // int last = N - 1;  // 35000000
   // printf("=== mna_solver1 last sample ===\n");
   // printf("t[last]      = %.15e\n", out->t[last]);
   // printf("vout[last]   = %.15e\n", out->vout[last]);
@@ -315,6 +336,38 @@ void mna_solver1(double b_A[576], struct0_T *out)
   //         v1[last], v2[last], v3[last], v4[last], v5[last], v6[last]);
   // printf("i1[last]=%.15e i2[last]=%.15e i3[last]=%.15e i4[last]=%.15e i5[last]=%.15e i7[last]=%.15e i8[last]=%.15e i9[last]=%.15e i10[last]=%.15e i11[last]=%.15e\n",
   //         i1[last], i2[last], i3[last], i4[last], i5[last], i7[last], i8[last], i9[last], i10[last], i11[last]);
+
+  free(i1);
+  free(i10);
+  free(i11);
+  free(i2);
+  free(i3);
+  free(i4);
+  free(i5);
+  free(i7);
+  free(i8);
+  free(i9);
+
+  free(js1);
+  free(js2);
+  free(js3);
+  free(js4);
+  free(js5);
+  free(js6);
+  free(js7);
+  free(js8);
+
+  free(v1);
+  free(v10);
+  free(v11);
+  free(v12);
+  free(v13);
+  free(v2);
+  free(v3);
+  free(v4);
+  free(v5);
+  free(v6);
+  free(v9);
 }
 /*
  * File trailer for mna_solver1.c

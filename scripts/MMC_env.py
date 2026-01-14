@@ -3,10 +3,6 @@ from gym import spaces
 import numpy as np
 import subprocess
 
-
-t_end = 1.5
-dt = 1e-7
-
 class MMCTuningEnv(gym.Env):
     mvoutdata = {"render_modes": ["human"]}
 
@@ -17,8 +13,8 @@ class MMCTuningEnv(gym.Env):
         self.L_min, self.L_max = 10e-3, 30e-3
         self.C_min, self.C_max = 1e-3, 19e-3
 
-        self.dL_scale = 0.05 * (self.L_max - self.L_min)
-        self.dC_scale = 0.05 * (self.C_max - self.C_min)
+        self.dL_scale = 1e-3
+        self.dC_scale = 1e-3
 
         self.observation_space = spaces.Box(
             low=np.array([0.0, 0.0], dtype=np.float32),
@@ -63,7 +59,6 @@ class MMCTuningEnv(gym.Env):
         self.best_L = None
         self.best_C = None
 
-        # ---- C 시뮬레이터 프로세스 실행 (★한 번만 띄우고 계속 사용) ----
         self.mmc_exec = mmc_exec
         self.proc = subprocess.Popen(
             [self.mmc_exec],
@@ -75,6 +70,7 @@ class MMCTuningEnv(gym.Env):
         )
 
     def update_H(self, L=20e-3, C=10e-3):
+        dt = 1e-7
         E = 2000
         R = 1
         Coff = 25e-9 
@@ -123,8 +119,8 @@ class MMCTuningEnv(gym.Env):
         self.P_out = 1.0
         self.pf = 1.0
 
-        self.L_arm = (self.L_min + self.L_max) / 2.0
-        self.C_arm = (self.C_min + self.C_max) / 2.0
+        self.L_arm = 20e-3
+        self.C_arm = 10e-3
 
         self.H = self.update_H(self.L_arm, self.C_arm)
 
@@ -200,9 +196,9 @@ class MMCTuningEnv(gym.Env):
         Python -> C 로 H(24x24=576개)를 딱 1번 전송.
         C는 이걸 읽고 LU factor를 준비한 뒤, mna_solver1을 실행하게 됨.
         """
-        if getattr(self, "_H_sent", False):
-            return  # 이미 보냈으면 재전송하지 않음
-
+        # if getattr(self, "_H_sent", False):
+        #     return  # 이미 보냈으면 재전송하지 않음
+        # print("Hi I'm here\n")
         if self.proc.poll() is not None:
             err = ""
             try:
@@ -231,7 +227,7 @@ class MMCTuningEnv(gym.Env):
         self.proc.stdin.write(line_out)
         self.proc.stdin.flush()
 
-        self._H_sent = True
+        # self._H_sent = True
 
 
     def _run_mmc_simulation(self, H):
