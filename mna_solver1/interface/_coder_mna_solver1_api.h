@@ -5,7 +5,7 @@
  * File: _coder_mna_solver1_api.h
  *
  * MATLAB Coder version            : 24.2
- * C/C++ source code generated on  : 05-Jan-2026 13:21:21
+ * C/C++ source code generated on  : 11-Jan-2026 19:16:15
  */
 
 #ifndef _CODER_MNA_SOLVER1_API_H
@@ -21,10 +21,11 @@
 #ifndef typedef_struct0_T
 #define typedef_struct0_T
 typedef struct {
-  real_T t[35000001];
-  real_T vout[35000001];
-  real_T icc[35000001];
-  real_T deltai[35000001];
+  real_T t[10000001];
+  real_T icc_ac_rms;
+  real_T vout[10000001];
+  real_T deltai[10000001];
+  real_T deltavc[10000001];
 } struct0_T;
 #endif /* typedef_struct0_T */
 

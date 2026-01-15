@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
- * File: mna_solver1.h
+ * File: mean.h
  *
  * MATLAB Coder version            : 24.2
  * C/C++ source code generated on  : 11-Jan-2026 19:16:15
  */
 
-#ifndef MNA_SOLVER1_H
-#define MNA_SOLVER1_H
+#ifndef MEAN_H
+#define MEAN_H
 
 /* Include Files */
-#include "mna_solver1_types.h"
 #include "rtwtypes.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -23,7 +22,9 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void mna_solver1(double H[576], struct0_T *out);
+double mean(const double x[SimSteps]);
+double meanN(double x[SimSteps], int N);
+double mean_a(double x[500000], int N);
 
 #ifdef __cplusplus
 }
@@ -31,7 +32,7 @@ extern void mna_solver1(double H[576], struct0_T *out);
 
 #endif
 /*
- * File trailer for mna_solver1.h
+ * File trailer for mean.h
  *
  * [EOF]
  */

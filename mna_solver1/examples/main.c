@@ -39,20 +39,6 @@
 #include "mna_solver1_terminate.h"
 #include "mna_solver1_types.h"
 #include "rt_nonfinite.h"
-#include <stdio.h>
-#include <string.h>
-#include "mna_solver1_alloc.h"
-#include "update_mat.h"
-
-const int SimSteps = 5000001;
-const double Timestep = 1E-7;
-
-static int read_L(double *L)
-{
-    if (scanf("%lf", L) != 1)
-        return 0;
-    return 1;
-}
 
 /* Function Definitions */
 /*
@@ -62,62 +48,15 @@ static int read_L(double *L)
  */
 int main(int argc, char **argv)
 {
-  fflush(stdout);
-
   (void)argc;
   (void)argv;
-
-  struct0_T out = {0};
-
-  if (!mna_solver1_alloc(&out)) {
-    fprintf(stderr, "mna_solver1_alloc failed\n");
-    return 1;
-  }
-
-  // /* ---- Open CSV file, append mode ---- */
-  // FILE *fp = fopen("results.csv", "a");
-  // if (!fp) {
-  //   perror("fopen results.csv");
-  //   return 1;
-  // }
-  
-  // /* Add header when the file is empty */
-  // fseek(fp, 0, SEEK_END);
-  // long fsz = ftell(fp);
-  // if (fsz == 0) {
-  //   fprintf(fp, "idx,t,vout,deltai,deltavc,icc_ac,icc_ac_rms\n");
-  //   fflush(fp);
-  // }
-  
-  double L;
-  if (!read_L(&L)){
-    fprintf(stderr, "read_L failed\n");
-    return 1;
-  }  
-
-  double H[576];
-  update_H(H, L);
-  
   /* The initialize function is being called automatically from your entry-point
    * function. So, a call to initialize is not included here. */
-  /* Invoke the entry-point functions.*/
-  mna_solver1(H, &out);
-  printf("The simulation is finished");
-
-  printf("%.15e %.15e %.15e\n",
-          out.icc[last],
-          out.deltai[last],
-          out.vout_rmse);
-  fflush(stdout);
-  mna_solver1_free(&out);
-  // for (int i = 0; i < SimSteps; i++) {
-  //   fprintf(fp, "%d,%.15e,%.15e,%.15e,%.15e,%.15e,%.15e\n",
-  //           i, out.t[i], out.vout[i], out.deltai[i], out.deltavc[i], out.icc_ac[i] ,out.icc_ac_rms);
-  // }
-
-  // fclose(fp);
-
-  /* Terminate the application.*/
+  /* Invoke the entry-point functions.
+You can call entry-point functions multiple times. */
+  main_mna_solver1();
+  /* Terminate the application.
+You do not need to do this more than one time. */
   mna_solver1_terminate();
   return 0;
 }
@@ -126,12 +65,12 @@ int main(int argc, char **argv)
  * Arguments    : void
  * Return Type  : void
  */
-// void main_mna_solver1(void)
-// {
-//   static struct0_T out;
-//   /* Call the entry-point 'mna_solver1'. */
-//   mna_solver1(&out);
-// }
+void main_mna_solver1(void)
+{
+  static struct0_T out;
+  /* Call the entry-point 'mna_solver1'. */
+  mna_solver1(&out);
+}
 
 /*
  * File trailer for main.c

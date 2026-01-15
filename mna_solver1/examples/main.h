@@ -45,10 +45,6 @@
 extern "C" {
 #endif
 
-/* Constant Declarations */
-extern const int SimSteps;
-extern const double Timestep;
-
 /* Function Declarations */
 extern int main(int argc, char **argv);
 

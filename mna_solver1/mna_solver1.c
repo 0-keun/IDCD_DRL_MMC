@@ -5,16 +5,18 @@
  * File: mna_solver1.c
  *
  * MATLAB Coder version            : 24.2
- * C/C++ source code generated on  : 05-Jan-2026 13:21:21
+ * C/C++ source code generated on  : 11-Jan-2026 19:16:15
  */
 
 /* Include Files */
 #include "mna_solver1.h"
 #include "colon.h"
+#include "mean.h"
 #include "mldivide.h"
 #include "mna_solver1_types.h"
 #include "mod.h"
 #include "rt_nonfinite.h"
+#include "main.h"
 #include <emmintrin.h>
 #include <math.h>
 #include <string.h>
@@ -27,61 +29,8 @@
  * Arguments    : struct0_T *out
  * Return Type  : void
  */
-
-// static void build_H_once(double H[576])
-// {
-//     // TODO: n==0에서만 H 구성/입력
-//     // column-major: H[row + 24*col]
-//     // 예시로 단위행렬
-//     static const double b_A[576] = {1.0,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,9.9999999999999991E-6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.9999999999999991E-6,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,9.9999999999999991E-6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.9999999999999991E-6,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,1.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,-1.0,-1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,-1.0,-1.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0};
-//     memcpy(H, b_A, 576 * sizeof(double));
-//     // for (int i = 0; i < 576; i++) H[i] = 0.0;
-//     // for (int d = 0; d < 24; d++) H[d + 24*d] = 1.0;
-// }
-
-// double b_A[576] = {1.0,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,
-//   -0.25,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,9.9999999999999991E-6,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.9999999999999991E-6,1.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,9.9999999999999991E-6,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-9.9999999999999991E-6,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,-0.25,0.0,0.25,0.0,0.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,-0.25,100000.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-100000.0,
-//   -0.25,1.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,-1.0,-1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,
-//   0.0,-1.0,-1.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-//   0.0,0.0,0.0,0.0,0.0,-1.0,0.0,0.0,-1.0,0.0};
-
-// void print_vector24(double x[24]) {
-//     printf("x = [\n");
-//     for (int i = 0; i < 24; i++) {
-//         printf("  %.6f", x[i]);  // 6 decimal places
-//         if (i != 23) printf(","); // comma between elements
-//         // printf("\n");
-//     }
-//     printf("]\n");
-// }
-
-void mna_solver1(double b_A[576], struct0_T *out)
+void mna_solver1(double H[576], struct0_T *out)
 {
-  const int N = 5000001;   // 길이 상수 (있으면 편함)
-  double rmse_acc = 0.0;
-  const double w_ref = 2.0 * M_PI * 60.0;
-  // if (!g_ctx_ready) {
-  //     fprintf(stderr, "mna_solver1: H not initialized. Call mna_solver1_set_H() first.\n");
-  //     exit(1);
-  // }
-  double t;
-  double err;
-
   double *v_ref;
   double *i1;
   double *i10;
@@ -112,38 +61,43 @@ void mna_solver1(double b_A[576], struct0_T *out)
   double *v5;
   double *v6;
   double *v9;
+  double *icc_ac;
+  double *icc;
+  double *icc_2;
 
-  int n;
-  v_ref  = (double *)malloc(N * sizeof(double));
-  i1  = (double *)malloc(N * sizeof(double));
-  i10 = (double *)malloc(N * sizeof(double));
-  i11 = (double *)malloc(N * sizeof(double));
-  i2  = (double *)malloc(N * sizeof(double));
-  i3  = (double *)malloc(N * sizeof(double));
-  i4  = (double *)malloc(N * sizeof(double));
-  i5  = (double *)malloc(N * sizeof(double));
-  i7  = (double *)malloc(N * sizeof(double));
-  i8  = (double *)malloc(N * sizeof(double));
-  i9  = (double *)malloc(N * sizeof(double));
-  js1 = (double *)malloc(N * sizeof(double));
-  js2 = (double *)malloc(N * sizeof(double));
-  js3 = (double *)malloc(N * sizeof(double));
-  js4 = (double *)malloc(N * sizeof(double));
-  js5 = (double *)malloc(N * sizeof(double));
-  js6 = (double *)malloc(N * sizeof(double));
-  js7 = (double *)malloc(N * sizeof(double));
-  js8 = (double *)malloc(N * sizeof(double));
-  v1  = (double *)malloc(N * sizeof(double));
-  v10 = (double *)malloc(N * sizeof(double));
-  v11 = (double *)malloc(N * sizeof(double));
-  v12 = (double *)malloc(N * sizeof(double));
-  v13 = (double *)malloc(N * sizeof(double));
-  v2  = (double *)malloc(N * sizeof(double));
-  v3  = (double *)malloc(N * sizeof(double));
-  v4  = (double *)malloc(N * sizeof(double));
-  v5  = (double *)malloc(N * sizeof(double));
-  v6  = (double *)malloc(N * sizeof(double));
-  v9  = (double *)malloc(N * sizeof(double));
+  v_ref  = (double *)malloc(SimSteps * sizeof(double));
+  i1  = (double *)malloc(SimSteps * sizeof(double));
+  i10 = (double *)malloc(SimSteps * sizeof(double));
+  i11 = (double *)malloc(SimSteps * sizeof(double));
+  i2  = (double *)malloc(SimSteps * sizeof(double));
+  i3  = (double *)malloc(SimSteps * sizeof(double));
+  i4  = (double *)malloc(SimSteps * sizeof(double));
+  i5  = (double *)malloc(SimSteps * sizeof(double));
+  i7  = (double *)malloc(SimSteps * sizeof(double));
+  i8  = (double *)malloc(SimSteps * sizeof(double));
+  i9  = (double *)malloc(SimSteps * sizeof(double));
+  js1 = (double *)malloc(SimSteps * sizeof(double));
+  js2 = (double *)malloc(SimSteps * sizeof(double));
+  js3 = (double *)malloc(SimSteps * sizeof(double));
+  js4 = (double *)malloc(SimSteps * sizeof(double));
+  js5 = (double *)malloc(SimSteps * sizeof(double));
+  js6 = (double *)malloc(SimSteps * sizeof(double));
+  js7 = (double *)malloc(SimSteps * sizeof(double));
+  js8 = (double *)malloc(SimSteps * sizeof(double));
+  v1  = (double *)malloc(SimSteps * sizeof(double));
+  v10 = (double *)malloc(SimSteps * sizeof(double));
+  v11 = (double *)malloc(SimSteps * sizeof(double));
+  v12 = (double *)malloc(SimSteps * sizeof(double));
+  v13 = (double *)malloc(SimSteps * sizeof(double));
+  v2  = (double *)malloc(SimSteps * sizeof(double));
+  v3  = (double *)malloc(SimSteps * sizeof(double));
+  v4  = (double *)malloc(SimSteps * sizeof(double));
+  v5  = (double *)malloc(SimSteps * sizeof(double));
+  v6  = (double *)malloc(SimSteps * sizeof(double));
+  v9  = (double *)malloc(SimSteps * sizeof(double));
+  icc_ac = (double *)malloc(SimSteps * sizeof(double));
+  icc = (double *)malloc(SimSteps * sizeof(double));
+  icc_2 = (double *)malloc(SimSteps * sizeof(double));
 
   if (!i1 || !i10 || !i11 || !i2 || !i3 || !i4 || !i5 || !i7 || !i8 || !i9 ||
       !js1 || !js2 || !js3 || !js4 || !js5 || !js6 || !js7 || !js8 ||
@@ -151,47 +105,51 @@ void mna_solver1(double b_A[576], struct0_T *out)
     fprintf(stderr, "mna_solver1: malloc failed (need huge memory)\n");
     exit(1);   // 메모리 없으면 그냥 종료
   }
-
+  __m128d r;
+  __m128d r1;
+  double saw_s;
+  int n;
   eml_float_colon(out->t);
   /* L_arm */
   /* C_sM */
-  memset(&v_ref[0], 0, N * sizeof(double));
-  memset(&v1[0], 0, N * sizeof(double));
-  memset(&v2[0], 0, N * sizeof(double));
-  memset(&v3[0], 0, N * sizeof(double));
-  memset(&v4[0], 0, N * sizeof(double));
-  memset(&v5[0], 0, N * sizeof(double));
-  memset(&v6[0], 0, N * sizeof(double));
-  memset(&out->vout[0], 0, N * sizeof(double));
-  memset(&v9[0], 0, N * sizeof(double));
-  memset(&v10[0], 0, N * sizeof(double));
-  memset(&v11[0], 0, N * sizeof(double));
-  memset(&v12[0], 0, N * sizeof(double));
-  memset(&v13[0], 0, N * sizeof(double));
-  memset(&i1[0], 0, N * sizeof(double));
-  memset(&i2[0], 0, N * sizeof(double));
-  memset(&i3[0], 0, N * sizeof(double));
-  memset(&i4[0], 0, N * sizeof(double));
-  memset(&i5[0], 0, N * sizeof(double));
-  memset(&i7[0], 0, N * sizeof(double));
-  memset(&i8[0], 0, N * sizeof(double));
-  memset(&i9[0], 0, N * sizeof(double));
-  memset(&i10[0], 0, N * sizeof(double));
-  memset(&i11[0], 0, N * sizeof(double));
-  memset(&js1[0], 0, N * sizeof(double));
-  memset(&js2[0], 0, N * sizeof(double));
-  memset(&js3[0], 0, N * sizeof(double));
-  memset(&js4[0], 0, N * sizeof(double));
-  memset(&js5[0], 0, N * sizeof(double));
-  memset(&js6[0], 0, N * sizeof(double));
-  memset(&js7[0], 0, N * sizeof(double));
-  memset(&js8[0], 0, N * sizeof(double));
-
+  memset(&v1[0], 0, SimSteps * sizeof(double));
+  memset(&v2[0], 0, SimSteps * sizeof(double));
+  memset(&v3[0], 0, SimSteps * sizeof(double));
+  memset(&v4[0], 0, SimSteps * sizeof(double));
+  memset(&v5[0], 0, SimSteps * sizeof(double));
+  memset(&v6[0], 0, SimSteps * sizeof(double));
+  memset(&out->vout[0], 0, SimSteps * sizeof(double));
+  memset(&v9[0], 0, SimSteps * sizeof(double));
+  memset(&v10[0], 0, SimSteps * sizeof(double));
+  memset(&v11[0], 0, SimSteps * sizeof(double));
+  memset(&v12[0], 0, SimSteps * sizeof(double));
+  memset(&v13[0], 0, SimSteps * sizeof(double));
+  memset(&i1[0], 0, SimSteps * sizeof(double));
+  memset(&i2[0], 0, SimSteps * sizeof(double));
+  memset(&i3[0], 0, SimSteps * sizeof(double));
+  memset(&i4[0], 0, SimSteps * sizeof(double));
+  memset(&i5[0], 0, SimSteps * sizeof(double));
+  memset(&i7[0], 0, SimSteps * sizeof(double));
+  memset(&i8[0], 0, SimSteps * sizeof(double));
+  memset(&i9[0], 0, SimSteps * sizeof(double));
+  memset(&i10[0], 0, SimSteps * sizeof(double));
+  memset(&i11[0], 0, SimSteps * sizeof(double));
+  memset(&js1[0], 0, SimSteps * sizeof(double));
+  memset(&js2[0], 0, SimSteps * sizeof(double));
+  memset(&js3[0], 0, SimSteps * sizeof(double));
+  memset(&js4[0], 0, SimSteps * sizeof(double));
+  memset(&js5[0], 0, SimSteps * sizeof(double));
+  memset(&js6[0], 0, SimSteps * sizeof(double));
+  memset(&js7[0], 0, SimSteps * sizeof(double));
+  memset(&js8[0], 0, SimSteps * sizeof(double));
+  memset(&icc_ac[0], 0, SimSteps * sizeof(double));
+  memset(&icc[0], 0, SimSteps * sizeof(double));
+  memset(&icc_2[0], 0, SimSteps * sizeof(double));
+  
   /*  System Matrix (24x24 constant) */
-  for (n = 0; n < N-1; n++) {
+  for (n = 0; n < SimSteps-1; n++) {
     double x[24];
     double saw;
-    double saw_s;
     double sine;
     signed char b_i1;
     signed char b_i2;
@@ -214,6 +172,8 @@ void mna_solver1(double b_A[576], struct0_T *out)
     b_i5 = (signed char)(b_i4 == 0);
     i6 = (signed char)(sine >= saw_s);
     b_i7 = (signed char)(i6 == 0);
+
+    // Edit here when you want to update 
     if ((i == 1) && (b_i1 == 0)) {
       js1[n + 1] = i2[n];
       js2[n + 1] = 0.25 * (v1[n] - v3[n]);
@@ -266,16 +226,14 @@ void mna_solver1(double b_A[576], struct0_T *out)
     x[21] = 100000.0 * (v12[n] - v13[n]);
     x[22] = js8[n + 1];
     x[23] = -2000.0;
-    // if (n % 1000000 == 0) {
-    //   print_vector24(x);
-    // }
-    // lu24_solve_inplace(&g_ctx, x);
-    mldivide(b_A, x);
+    // Edit here when you want to update b
+
+    mldivide(H, x);
+    
     v1[n + 1] = x[0];
     v2[n + 1] = x[1];
     v3[n + 1] = x[2];
-
-    v4[n + 1] = x[3]; 
+    v4[n + 1] = x[3];
     v5[n + 1] = x[4];
     v6[n + 1] = x[5];
     out->vout[n + 1] = x[6];
@@ -294,81 +252,57 @@ void mna_solver1(double b_A[576], struct0_T *out)
     i9[n + 1] = x[21];
     i10[n + 1] = x[22];
     i11[n + 1] = x[23];
-
-    t = out->t[n];
-    v_ref[n] = 1000.0*sin(w_ref * t);
-    // rmse_acc += err * err;
-    // printf("v_ref    = %.15e\n", v_ref);
-    // printf("vout     = %.15e\n", out->vout[n]);
+    
+    if (n % 500000 == 0){  
+      printf("The simulation is running: %f [Percent]\n",
+             100.0 * (double)n / (double)SimSteps);
+    }
   }
-  
-  for (n = 0; n <= N-3; n += 2) {
-    __m128d r;
-    __m128d r1;
+
+  printf("Hi simulation is done.\n");
+
+  for (n = 0; n <= SimSteps-3; n += 2) {
     r = _mm_loadu_pd(&i1[n]);
     r1 = _mm_loadu_pd(&i7[n]);
-    _mm_storeu_pd(&out->icc[n],
-                  _mm_div_pd(_mm_add_pd(r, r1), _mm_set1_pd(2.0)));
-    r = _mm_loadu_pd(&v5[n]);
-    r1 = _mm_loadu_pd(&v6[n]);
-    _mm_storeu_pd(&out->deltai[n],
-                  _mm_div_pd(_mm_sub_pd(r, r1), _mm_set1_pd(0.01)));
+    r = _mm_div_pd(_mm_add_pd(r, r1), _mm_set1_pd(2.0));
+    _mm_storeu_pd(&icc[n], r);
+    _mm_storeu_pd(&icc_2[n], _mm_mul_pd(r, r));
   }
-  for (n = N-3-500000; n <= N-3; n += 1) {
-    err = out->vout[n] - v_ref[n];
-    rmse_acc += err * err;
-    // printf("v_ref    = %.15e\n", v_ref);
-    // printf("vout     = %.15e\n", out->vout[n]);
+  
+  double _icc_dc = sqrt(mean_a(&icc_2[SimSteps-500000], 500000));
+  for (n = SimSteps-500000; n <= SimSteps-1 ; n++){
+    icc_ac[n] = icc[n] - _icc_dc;
+    out->icc_ac[n] = icc_ac[n];
+    icc_2[n] = icc_ac[n] * icc_ac[n];
   }
-  out->icc[N-1] = (i1[N-1] + i7[N-1]) / 2.0;
-  out->deltai[N-1] = (v5[N-1] - v6[N-1]) / 0.01;
-  out->vout_rmse = sqrt(rmse_acc / N);
+  out->icc_ac_rms = sqrt(mean_a(&icc_2[SimSteps-500000], 500000));
 
-  // int last = N - 1;  // 35000000
-  // printf("=== mna_solver1 last sample ===\n");
-  // printf("t[last]      = %.15e\n", out->t[last]);
-  // printf("vout[last]   = %.15e\n", out->vout[last]);
-  // printf("icc[last]    = %.15e\n", out->icc[last]);
-  // printf("deltai[last] = %.15e\n", out->deltai[last]);
+  for (n = 0; n < SimSteps ; n++){
+    out->deltai[n] = (v5[n] - v6[n]) / 0.01 * Timestep; // Edit L
+    out->deltavc[n] = i1[n] / 0.01 * Timestep; // Edit C
+  }
+  // for (n = 0; n <= SimSteps-3; n += 2) {
+  //   __m128d r2;
+  //   __m128d r3;
+  //   r2 = _mm_loadu_pd(&i7[n]);
+  //   r2 = _mm_sub_pd(r2, _mm_set1_pd(saw_s));
+  //   _mm_storeu_pd(&i7[n], r2);
+  //   _mm_storeu_pd(&v1[n], _mm_mul_pd(r2, r2));
+  //   r2 = _mm_loadu_pd(&v5[n]);
+  //   r3 = _mm_loadu_pd(&v6[n]);
+  //   _mm_storeu_pd(&out->deltai[n],
+  //                 _mm_mul_pd(_mm_div_pd(_mm_sub_pd(r2, r3), r), r1));
+  //   r2 = _mm_loadu_pd(&i1[n]);
+  //   _mm_storeu_pd(&out->deltavc[n], _mm_mul_pd(_mm_div_pd(r2, r), r1));
+  // }
 
-  // // 원하면 내부 변수들도 같이 확인
-  // printf("v1[last]=%.15e v2[last]=%.15e v3[last]=%.15e v4[last]=%.15e v5[last]=%.15e v6[last]=%.15e\n",
-  //         v1[last], v2[last], v3[last], v4[last], v5[last], v6[last]);
-  // printf("i1[last]=%.15e i2[last]=%.15e i3[last]=%.15e i4[last]=%.15e i5[last]=%.15e i7[last]=%.15e i8[last]=%.15e i9[last]=%.15e i10[last]=%.15e i11[last]=%.15e\n",
-  //         i1[last], i2[last], i3[last], i4[last], i5[last], i7[last], i8[last], i9[last], i10[last], i11[last]);
-
-  free(i1);
-  free(i10);
-  free(i11);
-  free(i2);
-  free(i3);
-  free(i4);
-  free(i5);
-  free(i7);
-  free(i8);
-  free(i9);
-
-  free(js1);
-  free(js2);
-  free(js3);
-  free(js4);
-  free(js5);
-  free(js6);
-  free(js7);
-  free(js8);
-
-  free(v1);
-  free(v10);
-  free(v11);
-  free(v12);
-  free(v13);
-  free(v2);
-  free(v3);
-  free(v4);
-  free(v5);
-  free(v6);
-  free(v9);
+  // saw_s = i7[SimSteps-1] - saw_s;
+  // v1[SimSteps-1] = saw_s * saw_s;
+  // out->deltai[SimSteps-1] = (v5[SimSteps-1] - v6[SimSteps-1]) / 0.01 * Timestep; // Edit L
+  // out->deltavc[SimSteps-1] = i1[SimSteps-1] / 0.01 * Timestep; // Edit C
+  // out->icc_ac_rms = sqrt(meanN(v1, SimSteps));
 }
+
 /*
  * File trailer for mna_solver1.c
  *

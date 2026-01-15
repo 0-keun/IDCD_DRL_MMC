@@ -5,7 +5,7 @@
  * File: _coder_mna_solver1_info.c
  *
  * MATLAB Coder version            : 24.2
- * C/C++ source code generated on  : 05-Jan-2026 13:21:21
+ * C/C++ source code generated on  : 11-Jan-2026 19:16:15
  */
 
 /* Include Files */
@@ -68,7 +68,7 @@ mxArray *emlrtMexFcnProperties(void)
       emlrtMxCreateString("C:\\Users\\sooan.pack\\OneDrive - University of "
                           "Rhode Island\\MATLAB\\MMC Simulink\\mna_solver1.m"));
   emlrtSetField(xEntryPoints, 0, "TimeStamp",
-                emlrtMxCreateDoubleScalar(739987.48692129634));
+                emlrtMxCreateDoubleScalar(739993.802337963));
   emlrtSetField(xEntryPoints, 0, "Constructor",
                 emlrtMxCreateLogicalScalar(false));
   emlrtSetField(xEntryPoints, 0, "Visible", emlrtMxCreateLogicalScalar(true));

@@ -47,6 +47,7 @@ add_executable(mna_solver1  ${START_DIR}/codegen/exe/mna_solver1/rt_nonfinite.c
     ${START_DIR}/codegen/exe/mna_solver1/mna_solver1.c
     ${START_DIR}/codegen/exe/mna_solver1/colon.c
     ${START_DIR}/codegen/exe/mna_solver1/mod.c
+    ${START_DIR}/codegen/exe/mna_solver1/mean.c
     ${START_DIR}/codegen/exe/mna_solver1/mldivide.c)
 
 # Set properties for target "mna_solver1".

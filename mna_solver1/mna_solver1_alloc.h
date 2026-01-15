@@ -2,12 +2,13 @@
 #define MNA_SOLVER1_ALLOC_H
 
 #include "mna_solver1_types.h"
+#include "main.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int  mna_solver1_alloc(struct0_T *out, int N);
+int  mna_solver1_alloc(struct0_T *out);
 void mna_solver1_free(struct0_T *out);
 
 #ifdef __cplusplus

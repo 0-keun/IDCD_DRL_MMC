@@ -1,6 +1,17 @@
+/*
+ * Academic License - for use in teaching, academic research, and meeting
+ * course requirements at degree granting institutions only.  Not for
+ * government, commercial, or other organizational use.
+ * File: mldivide.h
+ *
+ * MATLAB Coder version            : 24.2
+ * C/C++ source code generated on  : 11-Jan-2026 19:16:15
+ */
+
 #ifndef MLDIVIDE_H
 #define MLDIVIDE_H
 
+/* Include Files */
 #include "rtwtypes.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -9,23 +20,16 @@
 extern "C" {
 #endif
 
-typedef struct {
-    double LU[576];      // 24x24 (column-major)
-    signed char ipiv[24];
-    int ready;           // 0:not factored, 1:factored
-} LU24Ctx;
-
 /* Function Declarations */
 void mldivide(double b_A[576], double B[24]);
-
-// H를 LU로 한 번만 분해
-void lu24_factor(const double H[576], LU24Ctx *ctx);
-
-// 이미 분해된 LU로, B를 in-place로 푼다 (B := H^{-1}B)
-void lu24_solve_inplace(const LU24Ctx *ctx, double B[24]);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+/*
+ * File trailer for mldivide.h
+ *
+ * [EOF]
+ */

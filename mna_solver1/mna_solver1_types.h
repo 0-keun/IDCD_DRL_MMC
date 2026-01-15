@@ -5,7 +5,7 @@
  * File: mna_solver1_types.h
  *
  * MATLAB Coder version            : 24.2
- * C/C++ source code generated on  : 05-Jan-2026 13:21:21
+ * C/C++ source code generated on  : 11-Jan-2026 19:16:15
  */
 
 #ifndef MNA_SOLVER1_TYPES_H
@@ -20,10 +20,11 @@
 #define typedef_struct0_T
 typedef struct {
   double *t;
+  double icc_ac_rms;
   double *vout;
-  double *icc;
   double *deltai;
-  double vout_rmse;
+  double *deltavc;
+  double *icc_ac;
 } struct0_T;
 #endif /* typedef_struct0_T */
 

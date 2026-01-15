@@ -11,34 +11,20 @@ class MMCTuningEnv(gym.Env):
 
         # ----- 파라미터 범위 설정 -----
         self.L_min, self.L_max = 10e-3, 30e-3
-        self.C_min, self.C_max = 1e-3, 19e-3
+        # self.C_min, self.C_max = 1e-3, 19e-3
 
         self.dL_scale = 1e-3
-        self.dC_scale = 1e-3
+        # self.dC_scale = 1e-3
 
         self.observation_space = spaces.Box(
-            low=np.array([0.0, 0.0], dtype=np.float32),
-            high=np.array([1.0, 1.0], dtype=np.float32),
+            low=0.0,
+            high=1.0,
+            shape=(1,),
             dtype=np.float32
         )
 
-        self.action_space = spaces.Box(
-            low=np.array([-1.0, -1.0], dtype=np.float32),
-            high=np.array([1.0, 1.0], dtype=np.float32),
-            dtype=np.float32
-        )
-        self.action_space = spaces.Discrete(9)
-        self.action_table = {
-            0: (-1, -1),
-            1: (-1,  0),
-            2: (-1,  1),
-            3: ( 0, -1),
-            4: ( 0,  0),
-            5: ( 0,  1),
-            6: ( 1, -1),
-            7: ( 1,  0),
-            8: ( 1,  1),
-        }
+        self.action_space = spaces.Discrete(3)
+        self.action_table = np.array([-1.0, 0.0, 1.0], dtype=np.float32)
 
         self.render_mode = render_mode
         self.max_steps = 20
@@ -52,7 +38,7 @@ class MMCTuningEnv(gym.Env):
         self.I_out = None
         self.P_out = None
         self.pf = None
-        self.H = self.update_H()
+        # self.H = self.update_H()
 
         self.prev_cost = None
         self.best_cost = np.inf
@@ -122,7 +108,7 @@ class MMCTuningEnv(gym.Env):
         self.L_arm = 20e-3
         self.C_arm = 10e-3
 
-        self.H = self.update_H(self.L_arm, self.C_arm)
+        # self.H = self.update_H(self.L_arm, self.C_arm)
 
         self.step_count = 0
         self.prev_cost = None
@@ -149,7 +135,7 @@ class MMCTuningEnv(gym.Env):
         state = self._get_state()
         info = {
             "L_arm": self.L_arm,
-            "C_arm": self.C_arm,
+            # "C_arm": self.C_arm,
             "I_circ_rms": I_circ_rms,
             "I_ripple": I_ripple,
             "vout": vout,
@@ -162,7 +148,7 @@ class MMCTuningEnv(gym.Env):
 
     def _get_state(self):
         L_norm = (self.L_arm - self.L_min) / (self.L_max - self.L_min)
-        C_norm = (self.C_arm - self.C_min) / (self.C_max - self.C_min)
+        # C_norm = (self.C_arm - self.C_min) / (self.C_max - self.C_min)
         return np.array([L_norm, C_norm], dtype=np.float32)
 
     def _apply_action(self, action):
@@ -170,19 +156,22 @@ class MMCTuningEnv(gym.Env):
         if not self.action_space.contains(action):
             raise ValueError(f"Invalid action {action}")
 
-        aL, aC = self.action_table[action]
+        delta = self.action_table[action]
+        dL = delta * self.dL_scale
 
-        dL = aL * self.dL_scale
-        dC = aC * self.dC_scale
+        # aL, aC = self.action_table[action]
+
+        # dL = aL * self.dL_scale
+        # dC = aC * self.dC_scale
 
         self.L_arm = float(np.clip(
             self.L_arm + dL, self.L_min, self.L_max
         ))
-        self.C_arm = float(np.clip(
-            self.C_arm + dC, self.C_min, self.C_max
-        ))
+        # self.C_arm = float(np.clip(
+        #     self.C_arm + dC, self.C_min, self.C_max
+        # ))
 
-        self.H = self.update_H(self.L_arm, self.C_arm)
+        # self.H = self.update_H(self.L_arm, self.C_arm)
         # action = np.clip(action, -1.0, 1.0)
         # dL = float(action[0]) * self.dL_scale
         # dC = float(action[1]) * self.dC_scale
@@ -239,7 +228,7 @@ class MMCTuningEnv(gym.Env):
         # self.L_arm = 20e-3
         # self.C_arm = 10e-3
         # self.update_H(self.L_arm, self.C_arm)
-        print(f'This step, L_arm: {self.L_arm}, C_arm: {self.C_arm}')
+        print(f'This step, L_arm: {self.L_arm}') # , C_arm: {self.C_arm}')
         self._send_H_once(H)
         line_in = self.proc.stdout.readline()
         if not line_in:
@@ -314,7 +303,7 @@ class MMCTuningEnv(gym.Env):
         if cost < self.best_cost:
             self.best_cost = cost
             self.best_L = self.L_arm
-            self.best_C = self.C_arm
+            # self.best_C = self.C_arm
 
         return reward, cost
 
@@ -322,7 +311,7 @@ class MMCTuningEnv(gym.Env):
         if self.render_mode == "human":
             print(
                 f"Step {self.step_count}, "
-                f"L={self.L_arm:.6f}, C={self.C_arm:.6f}, "
+                f"L={self.L_arm:.6f}, " # C={self.C_arm:.6f}, "
                 f"best_cost={self.best_cost:.4f}"
             )
 
